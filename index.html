@@ -1,0 +1,96 @@
+<!doctype html><meta charset=utf-8><title> Try Asciidoc in your browser </title>
+<link rel="stylesheet" href="/lib/cm/cm2013-05-23.css">
+<link rel="stylesheet" href="asciidoc.css">
+<style>
+  html, .CodeMirror, .CodeMirror-scroll {
+    height: 100%;
+  }
+  .CodeMirror, #reditor {
+    height: calc(100% - 50px);
+    margin-top: 20px;
+    box-shadow: 0px 0px 3px #bbb inset;
+    border: 0;
+  }
+  .CodeMirror { font-family: DejaVu Sans Mono, monospace; font-size: 10px; }
+  body {
+    margin: auto;
+    width: 90%;
+    height: 100%;
+  }
+  #leditor { height: 100%; }
+  #reditor { overflow: auto; padding: 5px; }
+  #leditor, #reditor {
+    width: 50%;
+    float: left;
+  }
+  #error {
+    position: fixed;
+    bottom: 0;
+    background: #f88;
+    display: none;
+    z-index: 2;
+  }
+</style>
+
+
+<div id='leditor'>
+  <textarea id='lcode'></textarea>
+  <pre id='error'></pre>
+</div>
+<div id='reditor'>
+  <div id='rprod'></div>
+</div>
+
+<script src='/lib/cm/cm2013-05-23.js'></script>
+<script src='opal.js'></script>
+<script src='asciidoc.js'></script>
+<script>
+(function SetEditor() {
+
+
+// By default, CM maps the Tab key to the insertion of an actual tab.
+function betterTab(cm) {
+  if (cm.somethingSelected()) {
+    cm.indentSelection("add");
+  } else {
+    cm.replaceSelection(cm.getOption("indentWithTabs")? "\t":
+      Array(cm.getOption("indentUnit") + 1).join(" "), "end", "+input");
+  }
+}
+var editor = CodeMirror.fromTextArea(document.getElementById("lcode"), {
+  indentUnit: 2,
+  lineWrapping: true,
+  electricChars: false,
+  extraKeys: { Tab: betterTab }
+});
+
+function showError(msg) {
+  window.error.textContent = msg;
+  window.error.style.display = 'block';
+}
+
+function cmChange(editor) {
+  try {
+    window.error.style.display = 'none';
+    window.rprod.innerHTML = Opal.Asciidoctor.$render(editor.getValue());
+  } catch(e) {
+    showError(e.message);
+  }
+}
+
+editor.on('change', cmChange);
+
+// Wrap text smartly.
+var charWidth = editor.defaultCharWidth(), basePadding = 4;
+editor.on("renderLine", function(cm, line, elt) {
+  var off = CodeMirror.countColumn(line.text, null, cm.getOption("tabSize")) * charWidth;
+  elt.style.textIndent = "-" + off + "px";
+  elt.style.paddingLeft = (basePadding + off) + "px";
+});
+editor.refresh();
+editor.setValue('Try AsciiDoc\n------------\n\nThere is _no reason_ to prefer http://daringfireball.net/projects/markdown/[Markdown]:\nit has *all the features*\nfootnote:[See http://asciidoc.org/userguide.html[the user guide].]\nand more!\n\nNOTE: Great projects use it, including Git, WeeChat and Pacman!\n\n=== Comparison\n\n.Snippets of markup footnote:[More snippets in http://powerman.name/doc/asciidoc[the cheatsheet]]\n[cols=",2*<"]\n|===\n.3+^.^s| Link |AsciiDoc |`http://example.com[Dummy]`\n              |Markdown |`[Dummy](http://example.com)`\n              |Textile  |`"Dummy":http://example.com`\n\n.3+^.^s| Face |AsciiDoc |`Either *bold* or _italic_`\n              |Markdown |`Either **bold** or *italic*`\n              |Textile  |`Either *bold* or _italic_`\n\n.3+^.^s| Header |AsciiDoc |`== Level 2 ==`\n                |Markdown |`## Level 2`\n                |Textile  |`h2. Level 2`\n|===\n\n=== Ruby code to render AsciiDoc\n\n[source,ruby]\n----\nrequire \'asciidoctor\'  # <1>\n\nputs Asciidoctor.render_file(\'sample.adoc\', :header_footer => true)  # <2>\n----\n<1> Imports the library\n<2> Reads, parses and renders the file\n\n\nAnd here is some silly math:\ne^&#960;i^+1 = x^10^ and H~2~O.\n');
+window.editor = editor;
+
+
+}());
+</script>
