@@ -30,6 +30,20 @@
     display: none;
     z-index: 2;
   }
+  #website-link {
+    position: fixed;
+    top: 5px;
+    right: 5px;
+    font-size: 0.7em;
+    color: #aaa;
+  }
+  #website-link a {
+    color: #aaa;
+    text-decoration: none;
+  }
+  #website-link a:hover { text-decoration: underline; }
+  #website-link a::before { content: '['; }
+  #website-link a::after { content: ']'; }
 </style>
 
 
@@ -39,6 +53,9 @@
 </div>
 <div id='reditor'>
   <div id='rprod'></div>
+</div>
+<div id='website-link'>
+  <a href='http://asciidoc.org'>AsciiDoc website</a>
 </div>
 
 <script src='cm/lib/codemirror.js'></script>
