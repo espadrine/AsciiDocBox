@@ -59,6 +59,7 @@
 </div>
 
 <script src='cm/lib/codemirror.js'></script>
+<script src='cm/mode/asciidoc/asciidoc.js'></script>
 <script src='opal.js'></script>
 <script src='asciidoc.js'></script>
 <script>
@@ -75,6 +76,7 @@ function betterTab(cm) {
   }
 }
 var editor = CodeMirror.fromTextArea(document.getElementById("lcode"), {
+  mode: 'asciidoc',
   indentUnit: 2,
   lineWrapping: true,
   electricChars: false,
